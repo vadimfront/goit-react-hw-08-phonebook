@@ -15,5 +15,6 @@ export const checkIfContactExists = (contacts, contactFilterByName) => {
   const isContactExist = contacts.some(
     ({ name }) => name.toLowerCase() === contactFilterByName.toLowerCase()
   );
+  console.log(isContactExist);
   return isContactExist;
 };

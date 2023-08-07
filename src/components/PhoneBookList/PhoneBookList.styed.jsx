@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
 
-export const List = styled.ul`
+const List = styled.ul`
   margin-bottom: 15px;
   padding: 25px 0;
 `;
 
-export const ListItem = styled.li`
+const ListItem = styled.li`
   display: flex;
   gap: 50px;
   align-items: center;
@@ -13,7 +13,7 @@ export const ListItem = styled.li`
   color: #fff;
 `;
 
-export const BtnDelete = styled.button`
+const BtnDelete = styled.button`
   background-color: transparent;
   position: relative;
   border: none;
@@ -57,9 +57,21 @@ export const BtnDelete = styled.button`
   }
 `;
 
-export const ContactName = styled.span``;
-export const ContactNumber = styled.span``;
+const BtnEdit = styled.button``;
 
-export const NotFound = styled.span`
+const ContactName = styled.span``;
+const ContactNumber = styled.span``;
+
+const NotFound = styled.span`
   color: #fff;
 `;
+
+export {
+  List,
+  ListItem,
+  BtnDelete,
+  BtnEdit,
+  ContactName,
+  ContactNumber,
+  NotFound,
+};

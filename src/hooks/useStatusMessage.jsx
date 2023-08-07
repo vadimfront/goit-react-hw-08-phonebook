@@ -18,7 +18,7 @@ const useStatusMessage = () => {
     return (
       <Snackbar
         open={isSnackbarShown}
-        autoHideDuration={1000}
+        autoHideDuration={3000}
         onClose={toggleState}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
