@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   BtnDelete,
   ContactName,
@@ -8,45 +9,36 @@ import {
   NotFound,
 } from './PhoneBookList.styed';
 import { contactsFilter } from 'utils/phoneBookUtils';
-import {
-  useDeleteContactMutation,
-  useGetContactsQuery,
-} from 'reducer/phoneBookApi';
+import { useDeleteContactMutation } from 'reducer/contactsApi';
 import { getFilterContactsTerm } from 'reducer/selectors';
 import { useSelector } from 'react-redux';
 import { ReactComponent as IconDelete } from '../../assets/svg/iconDelete.svg';
-import Spinner from 'components/Spinner/Spinner';
+import useStatusMessage from 'hooks/useStatusMessage';
 
-export const PhoneBookList = () => {
-  const {
-    data: contacts,
-    isLoading,
-    isFetching,
-    isError,
-    error,
-  } = useGetContactsQuery();
-  const [deleteContacts] = useDeleteContactMutation();
-
+export const PhoneBookList = ({ contacts }) => {
+  const [deleteContacts, { status: statusDelete }] = useDeleteContactMutation();
+  const { toggleState, showSuccessfulMessage } = useStatusMessage();
   const filterTerm = useSelector(getFilterContactsTerm);
-  const filteredContacts = contacts && contactsFilter(contacts, filterTerm);
 
-  const contentExist = !(isLoading ?? isError) && filteredContacts.length > 0;
-  const noFilterResults =
-    !(isLoading ?? isError) &&
-    contacts.length > 0 &&
-    !filteredContacts.length > 0;
+  const handlerDelete = id => {
+    deleteContacts(id);
+    toggleState();
+  };
+
+  const filteredContacts = contacts && contactsFilter(contacts, filterTerm);
+  const isContent = filteredContacts.length > 0;
+
+  const noFilterResults = contacts.length > 0 && !filteredContacts.length > 0;
 
   return (
     <>
-      {isFetching && <Spinner />}
-      {isError && error.message}
-      {contentExist && (
+      {isContent && (
         <List>
-          {filteredContacts.map(({ contactName, phoneNamber, id }) => (
+          {filteredContacts.map(({ name, number, id }) => (
             <ListItem key={id}>
-              <ContactName>{contactName}</ContactName>
-              <ContactNumber>{phoneNamber}</ContactNumber>
-              <BtnDelete size="small" onClick={() => deleteContacts(id)}>
+              <ContactName>{name}</ContactName>
+              <ContactNumber>{number}</ContactNumber>
+              <BtnDelete size="small" onClick={() => handlerDelete(id)}>
                 <IconDelete />
               </BtnDelete>
             </ListItem>
@@ -54,6 +46,12 @@ export const PhoneBookList = () => {
         </List>
       )}
       {noFilterResults && <NotFound>There is no matches</NotFound>}
+      {statusDelete === 'fulfilled' &&
+        showSuccessfulMessage('The contact was successfully deleted.')}
     </>
   );
+};
+
+PhoneBookList.propsTypes = {
+  contacts: PropTypes.object,
 };

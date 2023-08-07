@@ -1,91 +1,113 @@
-import React from 'react';
-import { ErrorMessage, Formik } from 'formik';
+import React, { useState } from 'react';
+import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import {
-  Button,
-  StyledFormikField,
-  FieldGroup,
-  FormBook,
-  Label,
-} from './PhoneBookForm.styled';
-import { nameRegExp, phoneRegExp } from 'components/constants';
+  createContactsError,
+  nameRegExp,
+  phoneRegExp,
+} from 'constants/constants';
 import { checkIfContactExists } from 'utils/phoneBookUtils';
 import {
   useAddContactMutation,
   useGetContactsQuery,
-} from 'reducer/phoneBookApi';
-import { nanoid } from 'nanoid';
+} from 'reducer/contactsApi';
+import { Box, Button } from '@mui/material';
+import { ErrorMessage, FormEl, InputText } from './PhoneBookForm.styled';
+import useErrorMessage from 'hooks/useStatusMessage';
 
 const PhoneBookForm = () => {
   const { data: contacts } = useGetContactsQuery();
-  const [addContact] = useAddContactMutation();
-
-  const initialValues = {
-    contactName: '',
-    phoneNamber: '',
-  };
+  const [addContact, { isError, error, status: statusCreate }] =
+    useAddContactMutation();
+  const {
+    toggleState,
+    showErrorMessage,
+    showSuccessfulMessage,
+    showInfoMessage,
+  } = useErrorMessage();
+  const [isContactExist, setIsContactExist] = useState(false);
 
   const validationSchema = Yup.object().shape({
-    contactName: Yup.string()
+    name: Yup.string()
       .matches(nameRegExp, 'Invalid name')
       .required('Name is required'),
-    phoneNamber: Yup.string()
+    number: Yup.string()
       .matches(phoneRegExp, 'Invalid phone number')
       .required('Phone number is required'),
   });
 
-  const handleSubmit = ({ contactName, phoneNamber }, { resetForm }) => {
-    const checkResult = checkIfContactExists(contacts, contactName);
-    console.log(checkResult);
-    if (checkResult) {
-      alert(`${contactName} is already in contacts.`);
-      return;
-    }
-    const newContact = {
-      id: nanoid(),
-      contactName: contactName,
-      phoneNamber: phoneNamber,
-    };
-    addContact(newContact);
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      number: '',
+    },
+    validationSchema: validationSchema,
 
-    resetForm({ values: initialValues });
-  };
+    onSubmit: async (values, { resetForm }) => {
+      const checkResult = await checkIfContactExists(contacts, values.name);
+      if (checkResult) {
+        setIsContactExist(true);
+        toggleState();
+        return;
+      }
+      try {
+        await addContact(values);
+        toggleState();
 
+        resetForm();
+      } catch (error) {
+        toggleState();
+      }
+    },
+  });
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-    >
-      <FormBook>
-        <FieldGroup>
-          <StyledFormikField
-            type="text"
-            id="phone_book__name"
-            name="contactName"
+    <>
+      {isError && showErrorMessage(error.status, createContactsError)}
+      {isContactExist && showInfoMessage('This user already exists')}
+      {statusCreate === 'fulfilled' &&
+        showSuccessfulMessage('The contact was successfully created.')}
+      <FormEl onSubmit={formik.handleSubmit}>
+        <Box>
+          <InputText
+            id="name"
+            name="name"
             placeholder="Name"
             autoComplete="off"
-            title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.name}
+            label="name"
+            variant="standard"
           />
-          <ErrorMessage name="contactName" component="div" />
-          <Label htmlFor="phone_book__name">Name</Label>
-        </FieldGroup>
-        <FieldGroup>
-          <StyledFormikField
-            type="tel"
-            id="phone_book__number"
-            name="phoneNamber"
+          {formik.touched.name && formik.errors.name && (
+            <ErrorMessage>{formik.errors.name}</ErrorMessage>
+          )}
+        </Box>
+
+        <Box>
+          <InputText
+            id="number"
+            name="number"
             placeholder="Number"
             autoComplete="off"
-            title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.number}
+            label="number"
+            variant="standard"
           />
-          <ErrorMessage name="phoneNamber" component="div" />
+          {formik.touched.number && formik.errors.number && (
+            <div>
+              <ErrorMessage>{formik.errors.number}</ErrorMessage>
+            </div>
+          )}
+        </Box>
 
-          <Label htmlFor="phone_book__number">Number</Label>
-        </FieldGroup>
-        <Button type="submit">Add contact</Button>
-      </FormBook>
-    </Formik>
+        <Button variant="contained" type="submit">
+          Add contact
+        </Button>
+      </FormEl>
+    </>
   );
 };
 

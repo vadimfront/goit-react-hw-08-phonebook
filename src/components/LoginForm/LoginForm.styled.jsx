@@ -2,7 +2,6 @@ import styled from '@emotion/styled';
 import { TextField } from '@mui/material';
 
 const InputText = styled(TextField)`
-  margin-top: 25px;
   padding-top: 10px;
   padding-bottm: 10px;
   .MuiInput-underline::before {
@@ -17,4 +16,9 @@ const InputText = styled(TextField)`
   }
 `;
 
-export { InputText };
+const ErrorMessage = styled.div({
+  marginTop: '10px',
+  color: 'red',
+});
+
+export { InputText, ErrorMessage };

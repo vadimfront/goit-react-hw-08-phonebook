@@ -1,6 +1,9 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { SpinnerEl } from './Spinner.styled';
 
+const appRoot = document.getElementById('root');
+
 export default function Spinner() {
-  return <SpinnerEl />;
+  return ReactDOM.createPortal(<SpinnerEl />, appRoot);
 }

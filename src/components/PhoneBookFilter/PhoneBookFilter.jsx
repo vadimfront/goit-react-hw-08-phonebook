@@ -1,8 +1,8 @@
 import React from 'react';
-import { Filter, Field } from './PhoneBookFilter.styled';
-import { FieldGroup, Label } from '../PhoneBookForm/PhoneBookForm.styled';
+import { InputText } from './PhoneBookFilter.styled';
 import { useDispatch } from 'react-redux';
 import { filterContactsByName } from 'reducer/filterSlice';
+import { Box } from '@mui/material';
 
 export const PhoneBookFilter = () => {
   const dispatch = useDispatch();
@@ -13,17 +13,16 @@ export const PhoneBookFilter = () => {
   };
 
   return (
-    <Filter>
-      <FieldGroup>
-        <Field
-          type="text"
-          id="filter"
-          placeholder="Find contacts by name"
-          onChange={handleFilter}
-          autoComplete="off"
-        />
-        <Label htmlFor="filter">Find contacts by name</Label>
-      </FieldGroup>
-    </Filter>
+    <Box>
+      <InputText
+        type="text"
+        id="filter"
+        placeholder="Find contacts by name"
+        onChange={handleFilter}
+        autoComplete="off"
+        label="Find contacts by name"
+        variant="standard"
+      />
+    </Box>
   );
 };
