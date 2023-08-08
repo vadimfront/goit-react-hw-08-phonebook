@@ -7,7 +7,7 @@ import {
   useUpdateContactMutation,
 } from 'reducer/contactsApi';
 import { useState } from 'react';
-import { checkIfContactExists } from 'utils/phoneBookUtils';
+import { checkIfContactExists, isNumberChanged } from 'utils/phoneBookUtils';
 import useStatusMessage from 'hooks/useStatusMessage';
 
 export const EditContact = ({ contactData, editeModal, toggleEditModal }) => {
@@ -26,8 +26,8 @@ export const EditContact = ({ contactData, editeModal, toggleEditModal }) => {
         contact: { name, number },
       };
       const checkResult = contacts && checkIfContactExists(contacts, name);
-      if (checkResult) {
-        console.log(checkResult);
+      const isOnlyNumber = isNumberChanged(contacts, data.contact);
+      if (checkResult && !isOnlyNumber) {
         toggleState();
         setIsUserExist(true);
         return;
@@ -49,11 +49,13 @@ export const EditContact = ({ contactData, editeModal, toggleEditModal }) => {
           placeholder="name"
           value={name}
           onChange={e => setName(e.target.value)}
+          type="text"
         />
         <TextField
           placeholder="number"
           value={number}
           onChange={e => setNumber(e.target.value)}
+          type="text"
         />
         <Button variant="contained" type="submit">
           Save

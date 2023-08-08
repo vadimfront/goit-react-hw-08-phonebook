@@ -18,3 +18,12 @@ export const checkIfContactExists = (contacts, contactFilterByName) => {
   console.log(isContactExist);
   return isContactExist;
 };
+
+export const isNumberChanged = (contacts, editebleContact) => {
+  const isOnlyNumber = contacts.filter(
+    contact =>
+      contact.name === editebleContact.name &&
+      contact.number !== editebleContact.number
+  );
+  return isOnlyNumber.length ? true : false;
+};
